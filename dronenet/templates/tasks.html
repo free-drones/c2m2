@@ -1,0 +1,48 @@
+{% extends "layout.html" %}
+
+{% block navmenu %}
+<li class="dropdown">
+  <a href="javascript:void(0)" class="dropbtn">/</a>
+  <div class="dropdown-content">
+    <a href="{{ url_for('tasks_start_dss') }}">start sitl+dss (1 instance)</a>
+    <a href="{{ url_for('tasks_start_sitl') }}">start sitl+dss (3 instances)</a>
+    <a href="{{ url_for('tasks_restart') }}">restart</a>
+    <a href="{{ url_for('tasks_upgrade') }}">upgrade (git pull + restart)</a>
+    <a href="{{ url_for('selfie') }}">selfie</a>
+    <a href="{{ url_for('tasks_app_noise') }}">app_noise</a>
+  </div>
+</li>
+<li><a href="#">{{ git_version }}@{{ git_branch }}</a></li>
+{% endblock %}
+
+{% block content %}
+<p><div id="data" style="text-align:center;font-family:courier;">{{performance}}</div></p>
+<table id="data" class="table table-striped">
+  <thead>
+    <tr>
+      <th>project</th>
+      <th>pid</th>
+      <th>%cpu</th>
+      <th>%mem</th>
+      <th>created</th>
+      <th>command</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for process in processes %}
+      <tr {% if not process.killable %}style="background-color:#44AAFF"{% endif %}>
+        <td>{{ process.project }}</td>
+        {% if process.killable %}
+        <td><a href="{{ url_for('tasks_kill', pid=process.pid) }}">{{ process.pid }}</a></td>
+        {% else %}
+        <td>{{ process.pid }}</td>
+        {% endif %}
+        <td>{{ process.cpu_percent }}</td>
+        <td>{{ process.memory_percent }}</td>
+        <td>{{ process.created }}</td>
+        <td>{{ process.cmd }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

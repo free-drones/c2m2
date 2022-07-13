@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <title>c2m2</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/default.css') }}">
+  </head>
+  <body>
+    <ul>
+      <li><a href="{{ url_for('index') }}">{{ meta.project }}</a></li>
+
+      <li class="dropdown">
+        <a href="javascript:void(0)" class="dropbtn">{{ meta.page }}</a>
+        <div class="dropdown-content">
+          {% if meta.page == "clients" %}{% else %}<a href="{{ url_for('clients') }}">clients</a>{% endif %}
+          {% if meta.page == "tasks" %}{% else %} <a href="{{ url_for('tasks') }}">tasks</a> {% endif %}
+        </div>
+      </li>
+      {% block navmenu %}
+      {% endblock %}
+
+      <li style="float:right"><a href="{{ url_for('settings') }}">{{ meta.name }}</a></li>
+    </ul>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class=flashes>
+          {% for category, message in messages %}
+          <div class="alert-{{ category }}">
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </body>
+</html>

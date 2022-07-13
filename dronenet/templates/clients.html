@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block navmenu %}
+<li class="dropdown">
+  <a href="javascript:void(0)" class="dropbtn">/</a>
+  <div class="dropdown-content">
+    <a href="{{ url_for('clients_delStaleClients') }}">remove stale clients</a>
+  </div>
+</li>
+{% endblock %}
+
+{% block content %}
+<p><div id="data" style="text-align:center;font-family:courier;">{{performance}}</div></p>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>name</th>
+      <th>desc</th>
+      <th>type</th>
+      <th>ip</th>
+      <th>port</th>
+      <th>owner</th>
+      <th>timestamp</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for client in clients %}
+    <tr>
+      <td>{{ client.id }}</td>
+      <td>{{ client.name }}</td>
+      <td>{{ client.desc }}</td>
+      <td>{{ client.type }}</td>
+      <td>{{ client.ip }}</td>
+      <td>{{ client.port }}</td>
+      <td>{{ client.owner }}</td>
+      <td>{{ client.timestamp }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

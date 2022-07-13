@@ -1,0 +1,114 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<p><div id="data" style="text-align:center;font-family:courier;">{{performance}}</div></p>
+    
+{% if app_selfie %}
+<form action="/selfie/follow" method="post">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>select target</th>
+        <th>id</th>
+        <th>name</th>
+        <th>desc</th>
+        <th>type</th>
+        <th>ip</th>
+        <th>port</th>
+        <th>owner</th>
+        <th>timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for client in clients %}
+        <tr>
+          <td><input class="form-check-input" type="checkbox" name="check" id="inlineCheckbox1" value="{{client.id}}">
+            <label class="form-check-label" for="inlineCheckbox1">&nbsp;</label></td>
+          <td>{{ client.id }}</td>
+          <td>{{ client.name }}</td>
+          <td>{{ client.desc }}</td>
+          <td>{{ client.type }}</td>
+          <td>{{ client.ip }}</td>
+          <td>{{ client.port }}</td>
+          <td>{{ client.owner }}</td>
+          <td>{{ client.timestamp }}</td>
+        </tr>
+     {% endfor %}
+   </tbody>
+ </table>
+<button type="submit" class="button" name="submit-button" value="follow">Follow</button>
+</form>
+
+<form action="/selfie/release" method="post">
+  <button href="#" class="button" name="release" value="Release">Shut down app_selfie</button>
+</form>
+
+<form method="post" class="form" name="slider-form-height" action="/selfie/set_pattern" id="slider-form">
+  <div class="range-slider">
+    <input type="range" min="5" max="30" value="{{height}}" class="slider" name="height-slider" id="height-slider">
+    <div class="slider-thumb" id="height-thumb">
+        <div class="tooltip" id="height-tooltip"></div>
+    </div>
+  </div>
+  
+  <button type="submit" class="button" name="Submit">Set height</button>
+  
+  <script>
+    function adjustSlider(slider_id, thumb_id, tooltip_id){
+      const slider = document.getElementById(slider_id);
+      const thumb = document.getElementById(thumb_id);
+      const tooltip = document.getElementById(tooltip_id);
+
+      const maxVal = slider.getAttribute("max");
+      const minVal = slider.getAttribute("min");
+      const val = ((slider.value - minVal) / (maxVal - minVal))* 100 + '%';
+
+      tooltip.innerHTML = slider.value;
+      thumb.style.left = val;
+    }
+    
+    adjustSlider("height-slider", "height-thumb", "height-tooltip");
+
+    document.getElementById("height-slider").oninput = function(){
+      adjustSlider("height-slider", "height-thumb", "height-tooltip"); 
+    }
+  </script>
+</form>
+
+{% else %} 
+<form action="/selfie/launch_app" method="post">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Select camera drone</th>
+        <th>id</th>
+        <th>name</th>
+        <th>desc</th>
+        <th>type</th>
+        <th>ip</th>
+        <th>port</th>
+        <th>owner</th>
+        <th>timestamp</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for client in clients %}
+        <tr>
+          <td><input class="form-check-input" type="checkbox" name="check" id="inlineCheckbox1" value="{{client.id}}">
+            <label class="form-check-label" for="inlineCheckbox1">&nbsp;</label></td>
+          <td>{{ client.id }}</td>
+          <td>{{ client.name }}</td>
+          <td>{{ client.desc }}</td>
+          <td>{{ client.type }}</td>
+          <td>{{ client.ip }}</td>
+          <td>{{ client.port }}</td>
+          <td>{{ client.owner }}</td>
+          <td>{{ client.timestamp }}</td>
+        </tr>
+     {% endfor %}
+   </tbody>
+ </table>
+<button type="submit" class="button" name="submit-button" value="launch_app">Launch app_selfie</button>
+</form>
+{% endif %}
+{% endblock %}
