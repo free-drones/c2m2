@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block navmenu %}
+<li class="dropdown">
+  <a href="javascript:void(0)" class="dropbtn">{{source}}</a>
+  <div class="dropdown-content">
+    {% for client in clients %}
+    <a href="{{ url_for('video') }}?source={{client.id}}">{{client.id}}</a>
+    {% endfor %}
+  </div>
+</li>
+{% endblock %}
+
+{% block content %}
+<h1>Video Stream</h1>
+{%if source != None %}
+<div style="width: 66%; float:left">
+  <h3>{{source}}</h3>
+  <img src="{{ url_for('video_feed') }}?source={{source}}" width="100%" height="auto" />
+</div>
+{% else %}
+{% for client in clients %}
+<div style="width: 33%; float:left">
+  <h3>{{client.id}}</h3>
+  <img src="{{ url_for('video_feed') }}?source={{client.id}}" width="100%" height="auto" />
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}

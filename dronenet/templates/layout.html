@@ -13,6 +13,7 @@
         <div class="dropdown-content">
           {% if meta.page == "clients" %}{% else %}<a href="{{ url_for('clients') }}">clients</a>{% endif %}
           {% if meta.page == "tasks" %}{% else %} <a href="{{ url_for('tasks') }}">tasks</a> {% endif %}
+          {% if meta.page == "video" %}{% else %} <a href="{{ url_for('video') }}">video</a> {% endif %}
         </div>
       </li>
       {% block navmenu %}

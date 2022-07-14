@@ -12,12 +12,12 @@ sys.path.append('../companion_computer/')
 import dss.auxiliaries
 import psutil
 import zmq
-from flask import flash, redirect, render_template, request, session, url_for
+from flask import flash, redirect, render_template, request, session, url_for, Response
 
 from dronenet import app, db
 from dronenet.forms import SettingsForm
 from dronenet.models import Remote
-
+from dronenet.camera import Camera
 reDigmet = re.compile("^.*[:=]162[0-9][0-9].*$")
 reTyra = re.compile("^.*[:=]163[0-9][0-9].*$")
 reTest = re.compile("^.*[:=]171[0-9][0-9].*$")
@@ -70,6 +70,13 @@ class CRM_Monitor:
       self.clients = answer['clients']
       for client in self.clients:
         client['timestamp'] = datetime.datetime.utcfromtimestamp(client['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+
+  def get_clients(self, capability):
+    clients = list()
+    for client in self.clients:
+      if capability in client['capabilities']:
+        clients.append(client)
+    return clients
 
   def restart(self, virgin=False):
     self.socket.send_and_receive({'id': 'root', 'fcn': 'restart', 'virgin': virgin})
@@ -429,6 +436,38 @@ def guess():
       if session['try_number'] > 3:
         return render_template('lose.html', guess=guess_)
   return render_template('guess.html', try_number=session['try_number'], guess=guess_)
+
+@app.route('/video', methods=['GET'])
+def video():
+  """Video streaming home page."""
+  ip = request.remote_addr
+  name = Remote.query.filter_by(ip=ip).first().name
+  project = get_project(ip)
+  source = request.args.get('source')
+  try:
+    crmMonitor = CRM_Monitor(project)
+    crmMonitor.update_clients()
+    video_clients = crmMonitor.get_clients(capability='video')
+    meta = {'name': name, 'project': project, 'page': 'video'}
+    return render_template('video.html', meta=meta, source=source, clients=video_clients)
+  except:
+    return redirect(url_for('index'))
+
+def gen(camera):
+    """Video streaming generator function."""
+    yield b'--frame\r\n'
+    while True:
+        frame = camera.get_frame()
+        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
+
+
+@app.route('/video_feed', methods=['GET'])
+def video_feed():
+    """Video streaming route. Put this in the src attribute of an img tag."""
+    source = request.args.get('source')
+    camera = Camera("rtsp://localhost:8554/"+source)
+    return Response(gen(camera),
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.errorhandler(404)
 def page_not_found(e):
