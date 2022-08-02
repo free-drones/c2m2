@@ -454,20 +454,20 @@ def video():
     return redirect(url_for('index'))
 
 def gen(camera):
-    """Video streaming generator function."""
-    yield b'--frame\r\n'
-    while True:
-        frame = camera.get_frame()
-        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
+  """Video streaming generator function."""
+  yield b'--frame\r\n'
+  while True:
+    frame = camera.get_frame()
+    yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
 
 
 @app.route('/video_feed', methods=['GET'])
 def video_feed():
-    """Video streaming route. Put this in the src attribute of an img tag."""
-    source = request.args.get('source')
-    camera = Camera("rtsp://localhost:8554/"+source)
-    return Response(gen(camera),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+  """Video streaming route. Put this in the src attribute of an img tag."""
+  source = request.args.get('source')
+  camera = Camera("rtsp://localhost:8554/"+source)
+  return Response(gen(camera),
+                  mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.errorhandler(404)
 def page_not_found(e):
