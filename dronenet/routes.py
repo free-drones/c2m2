@@ -7,17 +7,20 @@ import time
 import traceback
 from functools import wraps
 
+import psutil
+import zmq
+from flask import (Response, flash, redirect, render_template, request,
+                   session, url_for)
+
+from dronenet import app, db
+from dronenet.camera import Camera
+from dronenet.forms import SettingsForm
+from dronenet.models import Remote
+
 sys.path.append('../companion_computer/')
 
 import dss.auxiliaries
-import psutil
-import zmq
-from flask import flash, redirect, render_template, request, session, url_for, Response
 
-from dronenet import app, db
-from dronenet.forms import SettingsForm
-from dronenet.models import Remote
-from dronenet.camera import Camera
 reDigmet = re.compile("^.*[:=]162[0-9][0-9].*$")
 reTyra = re.compile("^.*[:=]163[0-9][0-9].*$")
 reTest = re.compile("^.*[:=]171[0-9][0-9].*$")
@@ -454,20 +457,20 @@ def video():
     return redirect(url_for('index'))
 
 def gen(camera):
-    """Video streaming generator function."""
-    yield b'--frame\r\n'
-    while True:
-        frame = camera.get_frame()
-        yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
+  """Video streaming generator function."""
+  yield b'--frame\r\n'
+  while True:
+    frame = camera.get_frame()
+    yield b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n--frame\r\n'
 
 
 @app.route('/video_feed', methods=['GET'])
 def video_feed():
-    """Video streaming route. Put this in the src attribute of an img tag."""
-    source = request.args.get('source')
-    camera = Camera("rtsp://localhost:8554/"+source)
-    return Response(gen(camera),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+  """Video streaming route. Put this in the src attribute of an img tag."""
+  source = request.args.get('source')
+  camera = Camera("rtsp://localhost:8554/"+source)
+  return Response(gen(camera),
+                  mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @app.errorhandler(404)
 def page_not_found(e):
