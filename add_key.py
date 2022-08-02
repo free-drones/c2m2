@@ -10,9 +10,13 @@ def _main() -> None:
   parser = argparse.ArgumentParser(description='add_key.py', allow_abbrev=False, add_help=False)
   parser.add_argument('-h', '--help', action='help', help=argparse.SUPPRESS)
   parser.add_argument('--commit', action='store_true')
+  parser.add_argument('--create', action='store_true', help='Creates a new database - this is needed if no database exists yet')
   parser.add_argument('--ip', type=str, default='')
   parser.add_argument('--name', type=str, default='')
   args = parser.parse_args()
+
+  if args.create:
+    db.create_all()
 
   if args.ip and args.name:
     # find unused id - this must be a very bad way of doing it
