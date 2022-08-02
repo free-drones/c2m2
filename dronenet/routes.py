@@ -7,17 +7,20 @@ import time
 import traceback
 from functools import wraps
 
+import psutil
+import zmq
+from flask import (Response, flash, redirect, render_template, request,
+                   session, url_for)
+
+from dronenet import app, db
+from dronenet.camera import Camera
+from dronenet.forms import SettingsForm
+from dronenet.models import Remote
+
 sys.path.append('../companion_computer/')
 
 import dss.auxiliaries
-import psutil
-import zmq
-from flask import flash, redirect, render_template, request, session, url_for, Response
 
-from dronenet import app, db
-from dronenet.forms import SettingsForm
-from dronenet.models import Remote
-from dronenet.camera import Camera
 reDigmet = re.compile("^.*[:=]162[0-9][0-9].*$")
 reTyra = re.compile("^.*[:=]163[0-9][0-9].*$")
 reTest = re.compile("^.*[:=]171[0-9][0-9].*$")
