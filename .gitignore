@@ -1,4 +1,5 @@
 __pycache__/
+/.config
 /.env/
 /c2m2.log
 /c2m2.sock
