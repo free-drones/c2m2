@@ -4,4 +4,5 @@ __pycache__/
 /c2m2.log
 /c2m2.sock
 /dronenet/remotes.db
+/dss
 /dss/
