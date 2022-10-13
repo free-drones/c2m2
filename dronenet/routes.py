@@ -67,9 +67,13 @@ class CRM_Monitor:
   def update_clients(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'clients', 'filter': ''})
     if dss.auxiliaries.zmq.is_ack(answer, 'clients'):
-      self.clients = answer['clients']
-      for client in self.clients:
+      clients = answer['clients']
+      temp_clients = []
+      for client_id, client in clients.items():
+        client['id'] = client_id
         client['timestamp'] = datetime.datetime.utcfromtimestamp(client['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
+        temp_clients.append(client)
+      self.clients = temp_clients
 
   def get_clients(self, capability):
     clients = list()
