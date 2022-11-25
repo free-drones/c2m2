@@ -246,14 +246,14 @@ def tasks_app_noise():
   crmMonitor.start_app("app_noise.py")
   return redirect(url_for('tasks'))
 
-@app.route('/tasks/start_monitor')
+@app.route('/tasks/app_monitor')
 @check_remote
-def tasks_start_monitor():
+def tasks_app_monitor():
   ip = request.remote_addr
   #name = Remote.query.filter_by(ip=ip).first().name
   project = get_project(ip)
   crmMonitor = CRM_Monitor(project)
-  crmMonitor.start_app('app_monitor.py')
+  crmMonitor.start_app('app_monitor.py', extra_args=["--mqtt_agent"])
   return redirect(url_for('tasks'))
 
 @app.route('/tasks/restart')
@@ -335,7 +335,13 @@ def selfie_follow():
           ip = app_selfie[0]['ip']
           port = app_selfie[0]['port']
           socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+          #Check if one other is selected
           if len(request.form.getlist('check'))==1:
+            height = request.form.get('height-slider')
+            if height:
+              #radius =  request.form.get('radius-slider')
+              #yaw_rate =  request.form.get('yaw-rate-slider')
+              socket.send_and_receive({"fcn": "set_pattern", "id": "GUI", "pattern": "above", "rel_alt": height, "heading": "course"})
             socket.send_and_receive({"fcn": "follow_her", "id": "GUI", "enable": True, "target_id": request.form['check'] })
             return redirect(url_for('selfie'))
           else:
