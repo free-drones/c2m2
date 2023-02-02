@@ -18,11 +18,17 @@ def _main() -> None:
   parser.add_argument('--name', type=str, default='')
   args = parser.parse_args()
 
+  #Check if database is initialized
+  try:
+    Remote.query.filter_by(id=1).first()
+  except:
+      print("Initializing database with table remote")
+      db.session.execute("CREATE TABLE remote (id INT, ip VARCHAR(16), name VARCHAR(64))")
+
   if args.list:
     # print list of all remotes
-    print("\nList of all remotes:")
-    for remote in Remote.query.all():
-      print(remote)
+      for remote in Remote.query.all():
+        print(remote)
 
   if args.add and args.delete:
     print('ERROR: Both add and delete set to true')
@@ -33,6 +39,7 @@ def _main() -> None:
       # find unused id - this must be a very bad way of doing it
       _id = 0
       remote = None
+      first_entry = False
       while True:
         _id += 1
         if not Remote.query.filter_by(id=_id).first():
@@ -41,7 +48,6 @@ def _main() -> None:
       # create a new remote
       remote = Remote(id=_id, ip=args.ip, name=args.name)
       print(f'New remote:           {remote}')
-
       if Remote.query.filter_by(ip=args.ip).first():
         print(f'Conflict in database: {Remote.query.filter_by(ip=args.ip).first()}')
         args.commit = False
