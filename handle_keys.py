@@ -22,13 +22,13 @@ def _main() -> None:
   try:
     Remote.query.filter_by(id=1).first()
   except:
-      print("Initializing database with table remote")
-      db.session.execute("CREATE TABLE remote (id INT, ip VARCHAR(16), name VARCHAR(64))")
+    print("Initializing database with table remote")
+    db.session.execute("CREATE TABLE remote (id INT, ip VARCHAR(16), name VARCHAR(64))")
 
   if args.list:
     # print list of all remotes
-      for remote in Remote.query.all():
-        print(remote)
+    for remote in Remote.query.all():
+      print(remote)
 
   if args.add and args.delete:
     print('ERROR: Both add and delete set to true')
@@ -39,7 +39,6 @@ def _main() -> None:
       # find unused id - this must be a very bad way of doing it
       _id = 0
       remote = None
-      first_entry = False
       while True:
         _id += 1
         if not Remote.query.filter_by(id=_id).first():
