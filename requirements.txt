@@ -25,6 +25,7 @@ SQLAlchemy==1.4.26
 tomli==2.0.1
 tomlkit==0.11.1
 typing-extensions==3.10.0.2
+uWSGI==2.0.20
 Werkzeug==2.0.2
 wrapt==1.14.1
 WTForms==3.0.0
