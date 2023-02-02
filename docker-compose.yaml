@@ -1,0 +1,10 @@
+version: "3"
+services:
+  c2m2:
+    build:
+      dockerfile: Dockerfile
+      context: ./
+    command:
+    "uwsgi --ini /app/c2m2.ini"
+    ports:
+    - "80:80"
