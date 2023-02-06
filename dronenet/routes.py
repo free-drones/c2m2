@@ -125,15 +125,6 @@ def clients_delStaleClients():
   crmMonitor.delStaleClients()
   return redirect(url_for('clients'))
 
-def get_performance():
-  now = datetime.datetime.now()
-  current_time = now.strftime("%H:%M:%S")
-  cpu = str(psutil.cpu_percent(interval=0.1)).zfill(5)
-  mem = str(psutil.virtual_memory().percent).zfill(5)
-  load = [str(round(x*100)).zfill(3) + '%' for x in os.getloadavg()]
-  load = '(' + ', '.join(load) + ')'
-  return f'{cpu}% @ {psutil.cpu_freq().current}MHz x {psutil.cpu_count(logical=True)} {load} - {mem}% of {psutil.virtual_memory().total // 2**20}MB - time {current_time}'
-
 @app.route('/tasks')
 @check_remote
 def tasks():
