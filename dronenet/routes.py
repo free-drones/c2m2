@@ -1,7 +1,6 @@
 import datetime
 import os
 import random
-import re
 import sys
 import time
 import traceback
@@ -17,54 +16,24 @@ from dronenet.camera import Camera
 from dronenet.forms import SettingsForm
 from dronenet.models import Remote
 
-sys.path.append('../companion_computer/')
+sys.path.append('../kristoffer/rise_drones/src/')
 
 import dss.auxiliaries
-
-reDigmet = re.compile("^.*[:=]162[0-9][0-9].*$")
-reTyra = re.compile("^.*[:=]163[0-9][0-9].*$")
-reTest = re.compile("^.*[:=]171[0-9][0-9].*$")
-reKristoffer = re.compile("^.*[:=]166[0-9][0-9].*$")
-reHanna = re.compile("^.*[:=]167[0-9][0-9].*$")
-reLennart = re.compile("^.*[:=]168[0-9][0-9].*$")
-reAndreas = re.compile("^.*[:=]169[0-9][0-9].*$")
+from dss.auxiliaries.config import config
 
 def get_project(ip):
-  if '10.44.162.' in ip:
-    return 'digmet'
-  elif '10.44.163.' in ip:
-    return 'tyra'
-  elif '10.44.171.' in ip:
-    return 'test'
-  elif '10.44.166.' in ip:
-    return 'kristoffer'
-  elif '10.44.167.' in ip:
-    return 'hanna'
-  elif '10.44.168.' in ip:
-    return 'lennart'
-  elif '10.44.169.' in ip:
-    return 'andreas'
-  else:
-    return None
+  for project in config["zeroMQ"]["subnets"]:
+    if config["zeroMQ"]["subnets"][project]["ip"] in ip:
+      return project
+  return None
 
 class CRM_Monitor:
   def __init__(self, project):
-    if project == 'digmet':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16200)
-    elif project == 'tyra':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16300)
-    elif project == 'test':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 17100)
-    elif project == 'kristoffer':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16600)
-    elif project == 'hanna':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16700)
-    elif project == 'lennart':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16800)
-    elif project == 'andreas':
-      self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), '10.44.160.10', 16900)
-    else:
-      self.socket = None
+    self.socket = None
+    for config_project in config["zeroMQ"]["subnets"]:
+      if config_project == project:
+        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["subnet"]*100)
+        break
     self.clients = list()
 
   def update_clients(self):
@@ -100,6 +69,20 @@ class CRM_Monitor:
   def get_version(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_info'})
     return answer.get('git_version', 'unknown'), answer.get('git_branch', '???')
+  def get_performance(self):
+    answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_performance'})
+    if dss.auxiliaries.zmq.is_ack(answer):
+      performance = answer["performance"]
+    else:
+      performance = "unknown performance..."
+    return performance
+  def get_processes(self, project):
+    answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_processes', 'project': project})
+    return answer
+  def kill_process(self, pid):
+    answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'kill_process', 'pid': pid})
+    return answer
+
 
 def check_remote(func):
   @wraps(func)
@@ -130,7 +113,7 @@ def clients():
     crmMonitor = CRM_Monitor(project)
     crmMonitor.update_clients()
     meta = {'name': name, 'project': project, 'page': 'clients'}
-    performance = get_performance()
+    performance = crmMonitor.get_performance()
     return render_template('clients.html', meta=meta, clients=crmMonitor.clients, performance=performance)
   except:
     return redirect(url_for('index'))
@@ -165,58 +148,28 @@ def tasks():
     git_version, git_branch = crmMonitor.get_version()
   except Exception:
     return 'crm not responsive, please try again'
-
-  # get process and render page
-  processes = list()
-  for proc in psutil.process_iter():
-    try:
-      if 'python' not in proc.name().lower() and 'arducopter' not in proc.name() and 'mavproxy' not in proc.name():
-        continue
-
-      # get process detail as dictionary
-      info = proc.as_dict(attrs=['pid', 'name', 'cpu_percent', 'memory_percent', 'create_time', 'cmdline'])
-      info['cmd'] = ' '.join(info['cmdline'])
-
-      if not info['cmd']:
-        continue
-
-      if reDigmet.match(info['cmd']):
-        info['project'] = 'digmet'
-      elif reTyra.match(info['cmd']):
-        info['project'] = 'tyra'
-      elif reTest.match(info['cmd']):
-        info['project'] = 'test'
-      elif reKristoffer.match(info['cmd']):
-        info['project'] = 'kristoffer'
-      elif reHanna.match(info['cmd']):
-        info['project'] = 'hanna'
-      elif reLennart.match(info['cmd']):
-        info['project'] = 'lennart'
-      elif reAndreas.match(info['cmd']):
-        info['project'] = 'andreas'
-      else:
-        info['project'] = 'unknown'
-      info['killable'] = 'crm.py' not in info['cmd'] and project == info['project']
-      info['memory_percent'] = str(round(info['memory_percent'], 1))
-      info['created'] = datetime.datetime.fromtimestamp(info['create_time']).strftime('%Y-%m-%d %H:%M:%S')
-
-      processes.append(info)
-    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-      pass
-
+  #Ask CRM for process data
+  answer = crmMonitor.get_processes(project)
+  if dss.auxiliaries.zmq.is_ack(answer):
+    processes = answer["processes"]
+  else:
+    processes = list()
   meta = {'name': name, 'project': project, 'page': 'tasks'}
-  performance = get_performance()
+  performance = crmMonitor.get_performance()
+
   return render_template('tasks.html', meta=meta, processes=processes, performance=performance, git_branch=git_branch, git_version=git_version)
 
 @app.route('/tasks/kill/<pid>')
 def tasks_kill(pid):
+  ip = request.remote_addr
+  project = get_project(ip)
   try:
-    p = psutil.Process(int(pid))
-    p.terminate()
-  except (psutil.NoSuchProcess):
-    flash(f'process (pid {pid}) no longer exists', 'error')
-  except:
-    flash(str(traceback.format_exc()), 'error')
+    crmMonitor = CRM_Monitor(project)
+  except Exception:
+    return 'crm not responsive, please try again'
+  answer = crmMonitor.kill_process(int(pid))
+  if dss.auxiliaries.zmq.is_nack(answer):
+    flash(answer['description'], 'error')
   return redirect(url_for('tasks'))
 
 @app.route('/tasks/start_sitl')
@@ -291,7 +244,7 @@ def selfie():
   try:
     crmMonitor = CRM_Monitor(project)
     crmMonitor.update_clients()
-    performance = get_performance()
+    performance = crmMonitor.get_performance()
     if request.method == 'GET':
       if list(filter(lambda key : key["name"]=="app_selfie.py", crmMonitor.clients)):
         return render_template('selfie.html', meta=meta, clients=crmMonitor.clients, performance=performance, app_selfie=True)
