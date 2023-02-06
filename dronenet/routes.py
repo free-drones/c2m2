@@ -3,8 +3,6 @@ import random
 import sys
 import time
 from functools import wraps
-
-import psutil
 import zmq
 from flask import (Response, flash, redirect, render_template, request,
                    session, url_for)
