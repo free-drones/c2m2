@@ -1,6 +1,5 @@
 import datetime
 import random
-import sys
 import time
 from functools import wraps
 import zmq
@@ -11,8 +10,6 @@ from dronenet import app, db
 from dronenet.camera import Camera
 from dronenet.forms import SettingsForm
 from dronenet.models import Remote
-
-sys.path.append('../kristoffer/rise_drones/src/')
 
 import dss.auxiliaries
 from dss.auxiliaries.config import config
