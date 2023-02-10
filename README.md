@@ -29,25 +29,32 @@ The configuration file (.config in the config folder) determines what projects t
 ## Step 3 - Launch the web service
 The web service can be launched by executing the command
 > docker compose up --detach
+
 The command launches a container, and the detach flag makes sure that the service is running in the background. To check if the container is up and running, type:
 > docker container list
+
 and check if the container is active.
 
 ## Step 4 - Add the accepted remotes
 The web application uses a database to handle the remote IPs that are allowed to connect to c2m2. To see what remote IPs that are added and accepted, use the following command
 > python handle_keys.py --list
+
 If it does not work, make sure that you have added the DSS to your python path (e.g. PYTHONPATH environment variable)! Another way is to run the python script within the docker container
+
 > docker exec -it c2m2-n2m2-1 bash
+
 > python handle_keys.py --list
 
 If you would like to add remotes, type the following
 > python handle_keys.py --add --ip 10.44.166.70 --name NAME_OF_REMOTE --commit
+
 To remove remotes, you use the ID instead that is given to the remote once it has been added
 > python handle_keys.py --delete --id 1
 
 # Step 5 - Maintenance
 As of now, the app folder and the config file is mounted within the docker container, which means that you can modify the files "from the outside" without re-building the docker image. If you have done some modifications and would like to restart the service type:
 > docker container kill c2m2-c2m2-1
+
 > docker compose up
 
 If you would like to re-build the docker image, use
