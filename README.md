@@ -52,7 +52,7 @@ To remove remotes, you use the ID instead that is given to the remote once it ha
 > python handle_keys.py --delete --id 1 --commit
 
 
-# Step 5 - Maintenance
+## Step 5 - Maintenance
 As of now, the app folder and the config file is mounted within the docker container, which means that you can modify the files "from the outside" without re-building the docker image. If you have done some modifications and would like to restart the service type:
 > docker container kill c2m2-c2m2-1
 
