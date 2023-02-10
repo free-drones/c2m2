@@ -25,7 +25,7 @@ class CRM_Monitor:
     self.socket = None
     for config_project in config["zeroMQ"]["subnets"]:
       if config_project == project:
-        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["subnet"]*100)
+        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
         break
     self.clients = list()
 
