@@ -50,9 +50,9 @@ def _main() -> None:
 
   if args.backup_load != '':
     with open(args.backup_load, 'r', encoding='utf-8') as infile:
-            backup = json.load(infile)
-            for id in backup:
-              _add_remote(backup[id]['ip'], backup[id]['name'], args.commit)
+      backup = json.load(infile)
+      for id in backup:
+        _add_remote(backup[id]['ip'], backup[id]['name'], args.commit)
     return
 
   if args.add and args.delete:
