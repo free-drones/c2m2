@@ -1,2 +1,0 @@
-#bin/bash
-python3 handle_keys.py --list > remote_backup.txt

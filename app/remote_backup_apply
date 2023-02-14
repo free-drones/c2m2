@@ -1,3 +1,0 @@
-#bin/bash
-cat remote_backup.txt | while read line; do echo $line | sed s/Remote\(// | sed s/\)// | sed s/\'/--ip\ \/ | sed s/\',/\ \--name/ | awk -F"," '{print $2}' | xargs -0 -i sh -c 'python3 handle_keys.py --add --commit {}'; done 
-
