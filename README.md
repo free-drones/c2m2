@@ -41,7 +41,7 @@ The web application uses a database to handle the remote IPs that are allowed to
 
 If it does not work, make sure that you have added the DSS to your python path (e.g. PYTHONPATH environment variable)! Another way is to run the python script within the docker container
 
-> docker exec -it c2m2-n2m2-1 bash
+> docker exec -it c2m2-c2m2-1 bash
 
 > python handle_keys.py --list
 
@@ -51,6 +51,13 @@ If you would like to add remotes, type the following
 To remove remotes, you use the ID instead that is given to the remote once it has been added
 > python handle_keys.py --delete --id 1 --commit
 
+To create a backup of the remotes, use the the --backup_create flag
+> python handle_keys.py --backup_create
+It will create a time stamped backup file in json format in app/backup/
+
+To load a backup of the remotes, use the --backup_load=[backup_file].
+Duplicates will not be created.
+> python handle_keys.py --backup_load='my_backup.json' --commit
 
 ## Step 5 - Maintenance
 As of now, the app folder and the config file is mounted within the docker container, which means that you can modify the files "from the outside" without re-building the docker image. If you have done some modifications and would like to restart the service type:
