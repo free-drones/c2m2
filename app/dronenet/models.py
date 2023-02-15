@@ -1,6 +1,6 @@
 from dronenet import db
 
-
+# Remote class
 class Remote(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   ip = db.Column(db.String(16), unique=True, nullable=False)

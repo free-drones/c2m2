@@ -1,7 +1,7 @@
 import cv2
 from dronenet.base_camera import BaseCamera
 
-
+# Camera class
 class Camera(BaseCamera):
   video_source = ''
   def __init__(self, source):

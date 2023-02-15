@@ -32,9 +32,9 @@ class CRM_Monitor:
   def update_clients(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'clients', 'filter': ''})
     if dss.auxiliaries.zmq.is_ack(answer, 'clients'):
-      clients = answer['clients']
+      _clients = answer['clients']
       temp_clients = []
-      for client_id, client in clients.items():
+      for client_id, client in _clients.items():
         client['id'] = client_id
         client['timestamp'] = datetime.datetime.utcfromtimestamp(client['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
         temp_clients.append(client)
@@ -57,8 +57,8 @@ class CRM_Monitor:
     self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_sitl', 'client_ip': ip})
   def startDSS(self, ip):
     self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_dss', 'client_ip': ip})
-  def start_app(self, app, extra_args=[]):
-    self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_app', 'app': app, 'extra_args': extra_args})
+  def start_app(self, _app, extra_args=[]):
+    self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_app', 'app': _app, 'extra_args': extra_args})
   def get_version(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_info'})
     return answer.get('git_version', 'unknown'), answer.get('git_branch', '???')
