@@ -10,3 +10,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///remotes.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+# Import required after db
+from dronenet import routes
