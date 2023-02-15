@@ -131,7 +131,8 @@ def tasks():
     crmMonitor = CRM_Monitor(project)
     git_version, git_branch = crmMonitor.get_version()
   except Exception:
-    return 'crm not responsive, please try again'
+    error_str = 'crm not responsive. Check ip, port and firewall. Check config/.config that project is described under subnet. Project you come from is: ' + project
+    return error_str
   #Ask CRM for process data
   answer = crmMonitor.get_processes(project)
   if dss.auxiliaries.zmq.is_ack(answer):
@@ -150,7 +151,8 @@ def tasks_kill(pid):
   try:
     crmMonitor = CRM_Monitor(project)
   except Exception:
-    return 'crm not responsive, please try again'
+    error_str = 'crm not responsive. Check ip, port and firewall. Check config/.config that project is described under subnet. Project you come from is: ' + project
+    return error_str
   answer = crmMonitor.kill_process(int(pid))
   if dss.auxiliaries.zmq.is_nack(answer):
     flash(answer['description'], 'error')
