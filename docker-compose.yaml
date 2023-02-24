@@ -4,7 +4,8 @@ services:
     build:
       dockerfile: Dockerfile
       context: ./
-    command:
-      "uwsgi --ini /app/c2m2.ini"
+    volumes:
+      - ./app:/app
+      - ./config/.config:/app/.config
     ports:
       - "80:80"

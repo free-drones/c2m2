@@ -1,6 +1,5 @@
 import datetime
 import random
-import sys
 import time
 from functools import wraps
 import zmq
@@ -11,8 +10,6 @@ from dronenet import app, db
 from dronenet.camera import Camera
 from dronenet.forms import SettingsForm
 from dronenet.models import Remote
-
-sys.path.append('../kristoffer/rise_drones/src/')
 
 import dss.auxiliaries
 from dss.auxiliaries.config import config
@@ -28,16 +25,16 @@ class CRM_Monitor:
     self.socket = None
     for config_project in config["zeroMQ"]["subnets"]:
       if config_project == project:
-        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["subnet"]*100)
+        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
         break
     self.clients = list()
 
   def update_clients(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'clients', 'filter': ''})
     if dss.auxiliaries.zmq.is_ack(answer, 'clients'):
-      clients = answer['clients']
+      _clients = answer['clients']
       temp_clients = []
-      for client_id, client in clients.items():
+      for client_id, client in _clients.items():
         client['id'] = client_id
         client['timestamp'] = datetime.datetime.utcfromtimestamp(client['timestamp']).strftime('%Y-%m-%d %H:%M:%S')
         temp_clients.append(client)
@@ -60,8 +57,8 @@ class CRM_Monitor:
     self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_sitl', 'client_ip': ip})
   def startDSS(self, ip):
     self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_dss', 'client_ip': ip})
-  def start_app(self, app, extra_args=[]):
-    self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_app', 'app': app, 'extra_args': extra_args})
+  def start_app(self, _app, extra_args=[]):
+    self.socket.send_and_receive({'id': 'root', 'fcn': 'launch_app', 'app': _app, 'extra_args': extra_args})
   def get_version(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_info'})
     return answer.get('git_version', 'unknown'), answer.get('git_branch', '???')
@@ -134,7 +131,8 @@ def tasks():
     crmMonitor = CRM_Monitor(project)
     git_version, git_branch = crmMonitor.get_version()
   except Exception:
-    return 'crm not responsive, please try again'
+    error_str = 'crm not responsive. Check ip, port and firewall. Check config/.config that project is described under subnet. Project you come from is: ' + project
+    return error_str
   #Ask CRM for process data
   answer = crmMonitor.get_processes(project)
   if dss.auxiliaries.zmq.is_ack(answer):
@@ -153,7 +151,8 @@ def tasks_kill(pid):
   try:
     crmMonitor = CRM_Monitor(project)
   except Exception:
-    return 'crm not responsive, please try again'
+    error_str = 'crm not responsive. Check ip, port and firewall. Check config/.config that project is described under subnet. Project you come from is: ' + project
+    return error_str
   answer = crmMonitor.kill_process(int(pid))
   if dss.auxiliaries.zmq.is_nack(answer):
     flash(answer['description'], 'error')
