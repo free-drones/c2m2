@@ -30,6 +30,10 @@ The configuration file (.config in the config folder) determines what projects t
 The web service can be launched by executing the command
 > docker compose up --detach
 
+Your user must belong to docker group, otherwise you will get permission denied errors. If so add your user to the docker 
+group:
+> sudo usermod -aG docker $USER
+
 The command launches a container, and the detach flag makes sure that the service is running in the background. To check if the container is up and running, type:
 > docker container list
 
