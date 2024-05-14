@@ -12,6 +12,7 @@ Jinja2==3.0.2
 lazy-object-proxy==1.7.1
 MarkupSafe==2.1.1
 mccabe==0.7.0
+netifaces==0.11.0
 numpy==1.23.1
 opencv-python==4.6.0.66
 platformdirs==2.5.2
