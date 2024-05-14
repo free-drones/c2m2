@@ -53,6 +53,7 @@ If it does not work, make sure that you have added the DSS to your python path (
 > docker exec -it c2m2-c2m2-1 bash
 
 > python handle_keys.py --list
+libgl1 might be needed, install using apt if needed. 
 
 If you would like to add remotes, type the following
 > python handle_keys.py --add --ip 10.44.166.70 --name NAME_OF_REMOTE --commit
