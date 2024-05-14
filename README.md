@@ -30,12 +30,21 @@ The configuration file (.config in the config folder) determines what projects t
 The web service can be launched by executing the command
 > docker compose up --detach
 
+Your user must belong to docker group, otherwise you will get permission denied errors. If so add your user to the docker 
+group:
+> sudo usermod -aG docker $USER
+
 The command launches a container, and the detach flag makes sure that the service is running in the background. To check if the container is up and running, type:
 > docker container list
 
 and check if the container is active.
 
 ## Step 4 - Add the accepted remotes
+Install the requrements, preferably in a virtual env.
+>python -m venv c2m2
+>source c2m2/bin/activate
+> pip install -r requirements.txt
+
 The web application uses a database to handle the remote IPs that are allowed to connect to c2m2. To see what remote IPs that are added and accepted, use the following command
 > python handle_keys.py --list
 
