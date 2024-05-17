@@ -2,7 +2,6 @@ import datetime
 import random
 import time
 from functools import wraps
-import zmq
 from flask import (Response, flash, redirect, render_template, request,
                    session, url_for)
 
@@ -23,9 +22,10 @@ def get_project(ip):
 class CRM_Monitor:
   def __init__(self, project):
     self.socket = None
+    self._context = dss.auxiliaries.zmq_lib.Context()
     for config_project in config["zeroMQ"]["subnets"]:
       if config_project == project:
-        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
+        self.socket = dss.auxiliaries.zmq.Req(self._context, config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
         break
     self.clients = list()
 
@@ -276,7 +276,7 @@ def selfie_follow():
         if app_selfie:
           ip = app_selfie[0]['ip']
           port = app_selfie[0]['port']
-          socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+          socket = dss.auxiliaries.zmq.Req(self._context, ip=ip, port=port)
           #Check if one other is selected
           if len(request.form.getlist('check'))==1:
             height = request.form.get('height-slider')
@@ -307,7 +307,7 @@ def selfie_release():
       if app_selfie:
         ip = app_selfie[0]['ip']
         port = app_selfie[0]['port']
-        socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+        socket = dss.auxiliaries.zmq.Req(self._context, ip=ip, port=port)
         if request.form.get('release') == 'Release':
           socket.send_and_receive({"fcn": "follow_her", "id": "GUI", "enable": False})
           return render_template('selfie.html', meta=meta, clients=crmMonitor.clients)
@@ -329,7 +329,7 @@ def selfie_set_pattern():
       if app_selfie:
         ip = app_selfie[0]['ip']
         port = app_selfie[0]['port']
-        socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+        socket = dss.auxiliaries.zmq.Req(self._context, ip=ip, port=port)
         if request.form.get('height-slider'):
           height = request.form.get('height-slider')
           radius =  request.form.get('radius-slider')
