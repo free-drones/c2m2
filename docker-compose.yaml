@@ -1,4 +1,3 @@
-version: "3"
 services:
   c2m2:
     build:
