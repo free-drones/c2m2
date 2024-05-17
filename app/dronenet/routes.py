@@ -2,8 +2,7 @@ import datetime
 import random
 import time
 from functools import wraps
-from flask import (Response, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import (Response, flash, redirect, render_template, request, session, url_for)
 
 from dronenet import app, db
 from dronenet.camera import Camera
