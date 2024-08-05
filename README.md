@@ -6,7 +6,7 @@ This repository contains a web application for communicating with the Central Re
 In order to run the application, you need to install docker and docker compose. For an installation guide, please go to https://docs.docker.com/engine/install/ and https://docs.docker.com/compose/install/ for details on how to install the docker engine and the docker compose plugin.
 
 ## Step 2 — Update the configuration file
-The configuration file (.config in the config folder) determines what projects that are used, the port to the associated CRM with the project and the IP address to the computer where the CRM is running. It could look something like this
+The configuration file (.config in the config folder, not to confuse with the app/.config that is mirrored by docker-compose. It is a copy of the config/.config after each build) determines what projects that are used, the port to the associated CRM with the project and the IP address to the computer where the CRM is running. It could look something like this
 ```javascript
 {
   "zeroMQ": {
@@ -53,6 +53,7 @@ If it does not work, make sure that you have added the DSS to your python path (
 > docker exec -it c2m2-c2m2-1 bash
 
 > python handle_keys.py --list
+libgl1 might be needed, install using apt if needed. 
 
 If you would like to add remotes, type the following
 > python handle_keys.py --add --ip 10.44.166.70 --name NAME_OF_REMOTE --commit

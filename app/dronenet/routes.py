@@ -2,9 +2,7 @@ import datetime
 import random
 import time
 from functools import wraps
-import zmq
-from flask import (Response, flash, redirect, render_template, request,
-                   session, url_for)
+from flask import (Response, flash, redirect, render_template, request, session, url_for)
 
 from dronenet import app, db
 from dronenet.camera import Camera
@@ -22,16 +20,19 @@ def get_project(ip):
 
 class CRM_Monitor:
   def __init__(self, project):
+    print(f'Project is {project}')
     self.socket = None
+    self._context = dss.auxiliaries.zmq_lib.Context()
     for config_project in config["zeroMQ"]["subnets"]:
       if config_project == project:
-        self.socket = dss.auxiliaries.zmq.Req(zmq.Context(), config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
+        print(f'Open port at {config["zeroMQ"]["subnets"][project]["crm_ip"]}:{config["zeroMQ"]["subnets"][project]["crm_port"]}')
+        self.socket = dss.auxiliaries.zmq_lib.Req(self._context, config["zeroMQ"]["subnets"][project]["crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
         break
     self.clients = list()
 
   def update_clients(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'clients', 'filter': ''})
-    if dss.auxiliaries.zmq.is_ack(answer, 'clients'):
+    if dss.auxiliaries.zmq_lib.is_ack(answer, 'clients'):
       _clients = answer['clients']
       temp_clients = []
       for client_id, client in _clients.items():
@@ -64,7 +65,7 @@ class CRM_Monitor:
     return answer.get('git_version', 'unknown'), answer.get('git_branch', '???')
   def get_performance(self):
     answer = self.socket.send_and_receive({'id': 'root', 'fcn': 'get_performance'})
-    if dss.auxiliaries.zmq.is_ack(answer):
+    if dss.auxiliaries.zmq_lib.is_ack(answer):
       performance = answer["performance"]
     else:
       performance = "unknown performance..."
@@ -109,6 +110,7 @@ def clients():
     performance = crmMonitor.get_performance()
     return render_template('clients.html', meta=meta, clients=crmMonitor.clients, performance=performance)
   except:
+    print('An exeption..')
     return redirect(url_for('index'))
 
 @app.route('/clients/delStaleClients')
@@ -135,7 +137,7 @@ def tasks():
     return error_str
   #Ask CRM for process data
   answer = crmMonitor.get_processes(project)
-  if dss.auxiliaries.zmq.is_ack(answer):
+  if dss.auxiliaries.zmq_lib.is_ack(answer):
     processes = answer["processes"]
   else:
     processes = list()
@@ -154,7 +156,7 @@ def tasks_kill(pid):
     error_str = 'crm not responsive. Check ip, port and firewall. Check config/.config that project is described under subnet. Project you come from is: ' + project
     return error_str
   answer = crmMonitor.kill_process(int(pid))
-  if dss.auxiliaries.zmq.is_nack(answer):
+  if dss.auxiliaries.zmq_lib.is_nack(answer):
     flash(answer['description'], 'error')
   return redirect(url_for('tasks'))
 
@@ -276,7 +278,7 @@ def selfie_follow():
         if app_selfie:
           ip = app_selfie[0]['ip']
           port = app_selfie[0]['port']
-          socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+          socket = dss.auxiliaries.zmq_lib.Req(self._context, ip=ip, port=port)
           #Check if one other is selected
           if len(request.form.getlist('check'))==1:
             height = request.form.get('height-slider')
@@ -307,7 +309,7 @@ def selfie_release():
       if app_selfie:
         ip = app_selfie[0]['ip']
         port = app_selfie[0]['port']
-        socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+        socket = dss.auxiliaries.zmq_lib.Req(self._context, ip=ip, port=port)
         if request.form.get('release') == 'Release':
           socket.send_and_receive({"fcn": "follow_her", "id": "GUI", "enable": False})
           return render_template('selfie.html', meta=meta, clients=crmMonitor.clients)
@@ -329,7 +331,7 @@ def selfie_set_pattern():
       if app_selfie:
         ip = app_selfie[0]['ip']
         port = app_selfie[0]['port']
-        socket = dss.auxiliaries.zmq.Req(zmq.Context(), ip=ip, port=port)
+        socket = dss.auxiliaries.zmq_lib.Req(self._context, ip=ip, port=port)
         if request.form.get('height-slider'):
           height = request.form.get('height-slider')
           radius =  request.form.get('radius-slider')
