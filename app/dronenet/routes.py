@@ -27,6 +27,7 @@ class CRM_Monitor:
       if config_project == project:
         print(f'Open port at {config["CRM"]["default_crm_ip"]}: {config["zeroMQ"]["subnets"][project]["crm_port"]}')
         self.socket = dss.auxiliaries.zmq_lib.Req(self._context, config["CRM"]["default_crm_ip"], config["zeroMQ"]["subnets"][project]["crm_port"])
+
         break
     self.clients = list()
 
