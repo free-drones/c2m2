@@ -11,18 +11,27 @@ The configuration file (.config in the config folder, not to confuse with the ap
 {
   "zeroMQ": {
     "subnets" : {
-      "example1": {
-        "ip": "10.44.161.",
-        "crm_port": 16100
-      },
-      "example2": {
-        "ip": "10.44.162.",
-        "crm_port": 16200
-      }
+        "internal": {
+            "ip": "127.0.0.",
+            "crm_port": 12000
+        },
+        "local2": {
+          "ip": "192.168.65.",
+          "crm_port": 12000
+          },
+        "local": {
+            "ip": "192.168.120.",
+            "crm_port": 12000
+        },
+        "docker": {
+          "ip": "172.17.0.",
+          "crm_port": 12000
+      }      
     }
   },
   "CRM" : {
-    "default_crm_ip": "10.44.160.10"
+    "comment": "Docker Host default ip is 172.17.0.1",
+    "default_crm_ip": "172.20.10.6"
   }
 }
 ```
